@@ -63,7 +63,7 @@ class RandomClassificationExperiment:
         aspect: str = "equal",
         xlimits: Tuple = (0, 1),
         ylimits: Tuple = (0, 1),
-        figsize: Tuple = (5, 5),
+        figsize: Tuple = (6, 5),
         animate: bool = False,
         interval: int = 500,
         random_seed: int = 42,
@@ -192,13 +192,33 @@ class RandomClassificationExperiment:
 
     def calculate_analytic_scores(self):
         p = self.p_vec_highres[:, np.newaxis]
-        q = self.p_vec_highres if self.q_equals_p else self.q_vec_highres[:, np.newaxis]
+        q = p if self.q_equals_p else self.q_vec_highres[:, np.newaxis]
 
         if self.metric_name == "precision":
             if self.q_equals_p:
                 self.analytic_scores = p * np.ones(q.shape)
             else:
                 self.analytic_scores = p.dot(np.ones(q.T.shape))
+        elif self.metric_name == "recall":
+            if self.q_equals_p:
+                self.analytic_scores = np.ones(p.shape) * q
+            else:
+                self.analytic_scores = np.ones(p.shape).dot(q.T)
+        elif self.metric_name == "f1":
+            if self.q_equals_p:
+                self.analytic_scores = 2 * p * q / (p + q)
+            else:
+                self.analytic_scores = 2 * p.dot(q.T) / (p + q.T)
+        elif self.metric_name == "accuracy":
+            if self.q_equals_p:
+                self.analytic_scores = 1 + 2 * p * q - p - q
+            else:
+                self.analytic_scores = 1 + 2 * p.dot(q.T) - p - q.T
+        elif self.metric_name == "roc_auc":
+            if self.q_equals_p:
+                self.analytic_scores = 1 / 2 * np.ones(p.shape)
+            else:
+                self.analytic_scores = 1 / 2 * np.ones(p.dot(q.T).shape)
 
         if self.param_name == "p":
             self.analytic_scores = self.analytic_scores.T
@@ -214,11 +234,13 @@ class RandomClassificationExperiment:
 
 
 if __name__ == "__main__":
+    from sklearn.metrics import f1_score
+
     anim = RandomClassificationExperiment(
         p_vec=np.arange(0.1, 1, 0.1),
-        q_vec=None,
-        metric_func=precision_score,
-        metric_name="precision",
+        # q_vec=np.arange(0.1, 1, 0.1),
+        metric_func=f1_score,
+        metric_name="f1",
         param_name="p",
-        animate=False,
-    )
+        animate=True,
+    ).run()
