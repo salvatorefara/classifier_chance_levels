@@ -116,6 +116,7 @@ class RandomClassificationExperiment:
         self.calculate_random_classification_scores()
         self.calculate_analytic_scores()
         self.plot_results()
+        return self
 
     def plot_results(self):
         self.fig, self.ax = plt.subplots(1, 1, figsize=self.figsize)
