@@ -116,6 +116,7 @@ class RandomClassificationExperiment:
         self.calculate_random_classification_scores()
         self.calculate_analytic_scores()
         self.plot_results()
+
         return self
 
     def plot_results(self):
@@ -144,6 +145,9 @@ class RandomClassificationExperiment:
                     legend_label = f"{self.param_name} = {param:.1f}"
                     self._plot_scores(idx, legend_label)
                 self.ax.legend(loc="best")
+        plt.show()
+
+        return self
 
     def _plot_scores(self, idx, legend_label=None):
         if self.animate:
