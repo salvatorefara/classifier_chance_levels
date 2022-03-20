@@ -145,7 +145,6 @@ class RandomClassificationExperiment:
                     legend_label = f"{self.param_name} = {param:.1f}"
                     self._plot_scores(idx, legend_label)
                 self.ax.legend(loc="best")
-        plt.show()
 
         return self
 
