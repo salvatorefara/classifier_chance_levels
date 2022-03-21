@@ -25,19 +25,10 @@ def generate_random_labels(
     random_seed: Union[int, RandomState] = None,
 ) -> np.ndarray:
 
-    assert np.sum(class_proportions) == 1
-
     rs = initialize_random_generator(random_seed)
 
-    labels = rs.rand(n_samples)
     n_classes = len(class_proportions)
-    cum_props = np.cumsum([0, *class_proportions])
-    for idx in range(0, n_classes):
-        labels[
-            np.logical_and(labels >= cum_props[idx], labels < cum_props[idx + 1])
-        ] = idx
-
-    return labels
+    return rs.choice(np.arange(0, n_classes), size=(n_samples,), p=class_proportions)
 
 
 def generate_random_predictions(
@@ -145,7 +136,6 @@ class RandomClassificationExperiment:
                     legend_label = f"{self.param_name} = {param:.1f}"
                     self._plot_scores(idx, legend_label)
                 self.ax.legend(loc="best")
-        plt.show()
 
         return self
 
@@ -243,7 +233,7 @@ if __name__ == "__main__":
 
     anim = RandomClassificationExperiment(
         p_vec=np.arange(0.1, 1, 0.1),
-        # q_vec=np.arange(0.1, 1, 0.1),
+        q_vec=np.arange(0.1, 1, 0.1),
         metric_func=f1_score,
         metric_name="f1",
         param_name="p",
